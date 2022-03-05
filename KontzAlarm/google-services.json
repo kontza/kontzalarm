@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "629235471564",
+    "firebase_url": "https://kontzalarm-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "kontzalarm",
+    "storage_bucket": "kontzalarm.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:629235471564:android:c83183d8f46d604ee65e69",
+        "android_client_info": {
+          "package_name": "org.kontza.alarm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "629235471564-8e1d5m9gqicn5seg1dfe2sgt7fk0nonj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbUA0khPV-7Orw_NQz7xba2WuX-LnL40Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "629235471564-8e1d5m9gqicn5seg1dfe2sgt7fk0nonj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

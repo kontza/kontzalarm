@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">KontzAlarm</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">Alarms</string>
+    <string name="alarm_stored">Alarm stored</string>
+    <string name="store_failed">Failed to store the alarm</string>
+    <string name="submit">Submit</string>
+    <string name="enter_alarm_text">Enter Alarm Text</string>
+    <string name="alarm_text">Alarm Text</string>
+</resources>
