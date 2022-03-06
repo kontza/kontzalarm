@@ -38,4 +38,6 @@ class AlarmAdapter(private var alarmList: MutableList<AlarmItem>) :
     override fun getItemId(index: Int): Long {
         return index.toLong()
     }
+
+    fun getItem(position: Int): AlarmItem = alarmList[position]
 }
