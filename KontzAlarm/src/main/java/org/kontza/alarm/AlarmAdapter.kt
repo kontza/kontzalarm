@@ -8,7 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import java.text.DateFormat
 import java.util.*
 
-class AlarmAdapter(private var alarmList: MutableList<AlarmItem>) :
+class AlarmAdapter(
+    private val alarmList: MutableList<AlarmItem>,
+    private val listener: (AlarmItem) -> Unit
+) :
     RecyclerView.Adapter<AlarmAdapter.ListRowHolder>() {
 
     class ListRowHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -20,7 +23,11 @@ class AlarmAdapter(private var alarmList: MutableList<AlarmItem>) :
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ListRowHolder {
         val view = LayoutInflater.from(viewGroup.context)
             .inflate(R.layout.alarm_item, viewGroup, false)
-        return ListRowHolder(view)
+        val holder = ListRowHolder(view)
+        holder.itemView.setOnClickListener {
+            listener(alarmList[holder.adapterPosition])
+        }
+        return holder
     }
 
     override fun onBindViewHolder(holder: ListRowHolder, position: Int) {
@@ -34,10 +41,6 @@ class AlarmAdapter(private var alarmList: MutableList<AlarmItem>) :
     }
 
     override fun getItemCount() = alarmList.size
-
-    override fun getItemId(index: Int): Long {
-        return index.toLong()
-    }
-
+    override fun getItemId(index: Int): Long = index.toLong()
     fun getItem(position: Int): AlarmItem = alarmList[position]
 }

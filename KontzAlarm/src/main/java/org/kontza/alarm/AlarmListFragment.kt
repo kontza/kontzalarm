@@ -169,7 +169,9 @@ class AlarmListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         alarmList = mutableListOf<AlarmItem>()
-        alarmAdapter = AlarmAdapter(alarmList!!)
+        alarmAdapter = AlarmAdapter(alarmList!!) { item ->
+            Log.e(LOG_TAG, "Item '${item.objectId}' clicked")
+        }
         alarmsListRecyclerView = _binding!!.recyclerView
         alarmsListRecyclerView!!.adapter = alarmAdapter
         itemTouchHelper.attachToRecyclerView(alarmsListRecyclerView!!)
