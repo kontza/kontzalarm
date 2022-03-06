@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ListView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.firebase.database.*
 import org.kontza.alarm.Constants.LOG_TAG
@@ -21,19 +22,20 @@ class FirstFragment : Fragment() {
     private var alarmList: MutableList<AlarmItem>? = null
     private lateinit var alarmAdapter: AlarmAdapter
     private var alarmsListView: ListView? = null
-    var itemListener: ValueEventListener = object : ValueEventListener {
+    var alarmEntryListener: ValueEventListener = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
-            // Get Post object and use the values to update the UI
+            Log.e(LOG_TAG, "onDataChange")
             addDataToList(dataSnapshot)
         }
 
         override fun onCancelled(databaseError: DatabaseError) {
-            // Getting Item failed, log a message
-            Log.w("MainActivity", "loadItem:onCancelled", databaseError.toException())
+            Log.w(LOG_TAG, "loadItem:onCancelled", databaseError.toException())
+            Toast.makeText(requireContext(), R.string.store_failed, Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun addDataToList(dataSnapshot: DataSnapshot) {
+        alarmList!!.clear()
         val items = dataSnapshot.children.iterator()
         // Check if current database contains any collection
         Log.i(Constants.LOG_TAG, "Items? ${items.hasNext()}")
@@ -57,7 +59,7 @@ class FirstFragment : Fragment() {
                 alarmList!!.add(alarmItem)
             }
         }
-        //alert adapter that has changed
+        alarmList!!.sortBy { i -> i.utcAlarmTime }
         alarmAdapter.notifyDataSetChanged()
     }
 
@@ -70,6 +72,8 @@ class FirstFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
+        firebase = FirebaseDatabase.getInstance().reference
+        firebase.orderByKey().addValueEventListener(alarmEntryListener)
         return binding.root
     }
 
@@ -78,8 +82,6 @@ class FirstFragment : Fragment() {
         alarmAdapter = AlarmAdapter(requireContext(), alarmList!!)
         alarmsListView = _binding!!.alarmsList
         alarmsListView!!.adapter = alarmAdapter
-        firebase = FirebaseDatabase.getInstance().reference
-        firebase.orderByKey().addListenerForSingleValueEvent(itemListener)
         super.onViewCreated(view, savedInstanceState)
     }
 

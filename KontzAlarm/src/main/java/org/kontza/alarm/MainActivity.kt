@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                             val pickedDateTime = Calendar.getInstance()
                             var alarmText = alarmEditText.text.toString()
                             pickedDateTime.set(year, month, day, hour, minute)
-                            dateTimeSelected(pickedDateTime, alarmText)
+                            saveAlarm(pickedDateTime, alarmText)
                         }
                         alert.show()
                     },
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
         ).show()
     }
 
-    private fun dateTimeSelected(pickedDateTime: Calendar, alarmText: String) {
+    private fun saveAlarm(pickedDateTime: Calendar, alarmText: String) {
         val newAlarm = firebase.child(FIREBASE_ALARMS).push()
         val alarmItem = AlarmItem(newAlarm.key, pickedDateTime.timeInMillis, alarmText)
         Log.i(LOG_TAG, "newAlarm = $alarmItem")
