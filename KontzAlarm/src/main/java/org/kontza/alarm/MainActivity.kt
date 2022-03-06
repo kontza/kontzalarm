@@ -1,9 +1,10 @@
 package org.kontza.alarm
 
-import android.app.AlertDialog
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
+import android.app.*
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.text.format.DateFormat.is24HourFormat
 import android.util.Log
@@ -107,6 +108,7 @@ class MainActivity : AppCompatActivity(), AlarmListFragment.OnAlarmItemSelected 
         val oldAlarm = firebase.child(FIREBASE_ALARMS).child(alarmItem.objectId as String)
         Log.i(LOG_TAG, "oldAlarm = $alarmItem")
         oldAlarm.setValue(alarmItem).addOnSuccessListener {
+            setAlarm(alarmItem)
             Log.i(LOG_TAG, getString(R.string.alarm_stored))
             Toast.makeText(this@MainActivity, R.string.alarm_updated, Toast.LENGTH_SHORT).show()
         }.addOnFailureListener { exception ->
@@ -121,12 +123,38 @@ class MainActivity : AppCompatActivity(), AlarmListFragment.OnAlarmItemSelected 
         val alarmItem = AlarmItem(newAlarm.key, pickedDateTime.timeInMillis, alarmText)
         Log.i(LOG_TAG, "newAlarm = $alarmItem")
         newAlarm.setValue(alarmItem).addOnSuccessListener {
+            setAlarm(alarmItem)
             Log.i(LOG_TAG, getString(R.string.alarm_stored))
             Toast.makeText(this@MainActivity, R.string.alarm_stored, Toast.LENGTH_SHORT).show()
         }.addOnFailureListener { exception ->
             Log.e(LOG_TAG, "${getString(R.string.store_failed)}: $exception")
             Toast.makeText(this@MainActivity, R.string.store_failed, Toast.LENGTH_SHORT)
                 .show()
+        }
+    }
+
+    private fun setAlarm(alarmItem: AlarmItem) {
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent()
+        intent.action = getString(R.string.intent_action)
+        intent.setClass(this@MainActivity, AlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC,
+            alarmItem.utcAlarmTime!!,
+            pendingIntent
+        )
+    }
+
+    public class AlarmReceiver : BroadcastReceiver() {
+        override fun onReceive(_context: Context?, _intent: Intent?) {
+            val ctx = _context!!
+            val intent = _intent!!
+            if (intent.action == ctx.getString(R.string.intent_action)) {
+                Log.e(LOG_TAG, ctx.getString(R.string.alarm_triggered))
+                Toast.makeText(ctx, R.string.alarm_triggered, Toast.LENGTH_SHORT)
+                    .show()
+            }
         }
     }
 

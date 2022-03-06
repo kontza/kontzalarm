@@ -8,4 +8,6 @@
     <string name="enter_alarm_text">Enter Alarm Text</string>
     <string name="alarm_text">Alarm Text</string>
     <string name="alarm_updated">Alarm updated</string>
+    <string name="alarm_triggered">Alarm triggered</string>
+    <string name="intent_action">KontzAlarmAction</string>
 </resources>
