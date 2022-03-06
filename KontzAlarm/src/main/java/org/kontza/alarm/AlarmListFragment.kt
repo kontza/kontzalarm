@@ -5,23 +5,23 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ListView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
 import org.kontza.alarm.Constants.LOG_TAG
-import org.kontza.alarm.databinding.FragmentFirstBinding
+import org.kontza.alarm.databinding.FragmentAlarmListBinding
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
-class FirstFragment : Fragment() {
+class AlarmListFragment : Fragment() {
 
-    private var _binding: FragmentFirstBinding? = null
+    private var _binding: FragmentAlarmListBinding? = null
     private lateinit var firebase: DatabaseReference
     private var alarmList: MutableList<AlarmItem>? = null
     private lateinit var alarmAdapter: AlarmAdapter
-    private var alarmsListView: ListView? = null
+    private var alarmsListRecyclerView: RecyclerView? = null
     var alarmEntryListener: ValueEventListener = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
             Log.e(LOG_TAG, "onDataChange")
@@ -71,7 +71,7 @@ class FirstFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentFirstBinding.inflate(inflater, container, false)
+        _binding = FragmentAlarmListBinding.inflate(inflater, container, false)
         firebase = FirebaseDatabase.getInstance().reference
         firebase.orderByKey().addValueEventListener(alarmEntryListener)
         return binding.root
@@ -79,9 +79,9 @@ class FirstFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         alarmList = mutableListOf<AlarmItem>()
-        alarmAdapter = AlarmAdapter(requireContext(), alarmList!!)
-        alarmsListView = _binding!!.alarmsList
-        alarmsListView!!.adapter = alarmAdapter
+        alarmAdapter = AlarmAdapter(alarmList!!)
+        alarmsListRecyclerView = _binding!!.recyclerView
+        alarmsListRecyclerView!!.adapter = alarmAdapter
         super.onViewCreated(view, savedInstanceState)
     }
 
