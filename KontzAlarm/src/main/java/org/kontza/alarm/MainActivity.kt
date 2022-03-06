@@ -21,7 +21,7 @@ import org.kontza.alarm.Constants.LOG_TAG
 import org.kontza.alarm.databinding.ActivityMainBinding
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AlarmListFragment.OnAlarmItemSelected {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -29,20 +29,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         setSupportActionBar(binding.toolbar)
-
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
-
         binding.fab.setOnClickListener { _ ->
             addNewAlarmDialog()
         }
-
         firebase = FirebaseDatabase.getInstance().reference
     }
 
@@ -105,5 +100,9 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    override fun onAlarmItemSelected(alarmItem: AlarmItem) {
+        Log.e(LOG_TAG, "Item '$alarmItem' clicked.")
     }
 }

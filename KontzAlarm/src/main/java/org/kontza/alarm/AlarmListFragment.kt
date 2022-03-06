@@ -1,5 +1,6 @@
 package org.kontza.alarm
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -30,6 +31,7 @@ class AlarmListFragment : Fragment() {
     private var alarmsListRecyclerView: RecyclerView? = null
     private var swipeBackground: ColorDrawable = ColorDrawable(Color.RED)
     private lateinit var deleteIcon: Drawable
+    private lateinit var listener: OnAlarmItemSelected
 
     private val itemTouchHelperCallback =
         object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
@@ -127,6 +129,17 @@ class AlarmListFragment : Fragment() {
         }
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnAlarmItemSelected) {
+            listener = context
+        } else {
+            throw ClassCastException(
+                "$context must implement OnAlarmItemSelected."
+            )
+        }
+    }
+
     private fun addDataToList(dataSnapshot: DataSnapshot) {
         alarmList!!.clear()
         val items = dataSnapshot.children.iterator()
@@ -170,7 +183,7 @@ class AlarmListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         alarmList = mutableListOf<AlarmItem>()
         alarmAdapter = AlarmAdapter(alarmList!!) { item ->
-            Log.e(LOG_TAG, "Item '${item.objectId}' clicked")
+            listener.onAlarmItemSelected(item)
         }
         alarmsListRecyclerView = _binding!!.recyclerView
         alarmsListRecyclerView!!.adapter = alarmAdapter
@@ -184,4 +197,9 @@ class AlarmListFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    interface OnAlarmItemSelected {
+        fun onAlarmItemSelected(alarmItem: AlarmItem)
+    }
+
 }
