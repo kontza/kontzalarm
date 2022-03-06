@@ -35,19 +35,27 @@ class MainActivity : AppCompatActivity(), AlarmListFragment.OnAlarmItemSelected 
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
-        binding.fab.setOnClickListener { _ ->
-            addNewAlarmDialog()
+        binding.fab.setOnClickListener {
+            showAlarmEditDialog(null)
         }
         firebase = FirebaseDatabase.getInstance().reference
     }
 
-    private fun addNewAlarmDialog() {
+    private fun showAlarmEditDialog(alarmItem: AlarmItem?) {
         val currentDateTime = Calendar.getInstance()
-        val startYear = currentDateTime.get(Calendar.YEAR)
-        val startMonth = currentDateTime.get(Calendar.MONTH)
-        val startDay = currentDateTime.get(Calendar.DAY_OF_MONTH)
-        val startHour = currentDateTime.get(Calendar.HOUR_OF_DAY)
-        val startMinute = currentDateTime.get(Calendar.MINUTE)
+        var startYear = currentDateTime.get(Calendar.YEAR)
+        var startMonth = currentDateTime.get(Calendar.MONTH)
+        var startDay = currentDateTime.get(Calendar.DAY_OF_MONTH)
+        var startHour = currentDateTime.get(Calendar.HOUR_OF_DAY)
+        var startMinute = currentDateTime.get(Calendar.MINUTE)
+        if (alarmItem != null) {
+            currentDateTime.timeInMillis = alarmItem.utcAlarmTime!!
+            startYear = currentDateTime.get(Calendar.YEAR)
+            startMonth = currentDateTime.get(Calendar.MONTH)
+            startDay = currentDateTime.get(Calendar.DAY_OF_MONTH)
+            startHour = currentDateTime.get(Calendar.HOUR_OF_DAY)
+            startMinute = currentDateTime.get(Calendar.MINUTE)
+        }
 
         DatePickerDialog(
             this@MainActivity,
@@ -59,6 +67,9 @@ class MainActivity : AppCompatActivity(), AlarmListFragment.OnAlarmItemSelected 
                         val alarmEditText = EditText(this@MainActivity)
                         alert.setMessage(R.string.alarm_text)
                         alert.setTitle(R.string.enter_alarm_text)
+                        if (alarmItem != null) {
+                            alarmEditText.setText(alarmItem.alarmText)
+                        }
                         alert.setView(alarmEditText)
                         alert.setNegativeButton(
                             android.R.string.cancel,
@@ -67,7 +78,17 @@ class MainActivity : AppCompatActivity(), AlarmListFragment.OnAlarmItemSelected 
                             val pickedDateTime = Calendar.getInstance()
                             var alarmText = alarmEditText.text.toString()
                             pickedDateTime.set(year, month, day, hour, minute)
-                            saveAlarm(pickedDateTime, alarmText)
+                            if (alarmItem == null) {
+                                saveAlarm(pickedDateTime, alarmText)
+                            } else {
+                                saveAlarm(
+                                    AlarmItem(
+                                        alarmItem.objectId,
+                                        pickedDateTime.timeInMillis,
+                                        alarmText
+                                    )
+                                )
+                            }
                         }
                         alert.show()
                     },
@@ -80,6 +101,19 @@ class MainActivity : AppCompatActivity(), AlarmListFragment.OnAlarmItemSelected 
             startMonth,
             startDay
         ).show()
+    }
+
+    private fun saveAlarm(alarmItem: AlarmItem) {
+        val oldAlarm = firebase.child(FIREBASE_ALARMS).child(alarmItem.objectId as String)
+        Log.i(LOG_TAG, "oldAlarm = $alarmItem")
+        oldAlarm.setValue(alarmItem).addOnSuccessListener {
+            Log.i(LOG_TAG, getString(R.string.alarm_stored))
+            Toast.makeText(this@MainActivity, R.string.alarm_updated, Toast.LENGTH_SHORT).show()
+        }.addOnFailureListener { exception ->
+            Log.e(LOG_TAG, "${getString(R.string.store_failed)}: $exception")
+            Toast.makeText(this@MainActivity, R.string.store_failed, Toast.LENGTH_SHORT)
+                .show()
+        }
     }
 
     private fun saveAlarm(pickedDateTime: Calendar, alarmText: String) {
@@ -104,5 +138,6 @@ class MainActivity : AppCompatActivity(), AlarmListFragment.OnAlarmItemSelected 
 
     override fun onAlarmItemSelected(alarmItem: AlarmItem) {
         Log.e(LOG_TAG, "Item '$alarmItem' clicked.")
+        showAlarmEditDialog(alarmItem)
     }
 }
